@@ -3,11 +3,10 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import gym
+import gymnasium as gym 
 import gym_carla
 import carla
-from stable_baselines import DQN
-from stable_baselines.deepq.policies import MlpPolicy
+from stable_baselines3 import DQN
 
 def main():
   # parameters for the gym_carla environment
@@ -23,7 +22,7 @@ def main():
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
     'ego_vehicle_filter': 'vehicle.lincoln*',  # filter for defining ego vehicle
-    'port': 2000,  # connection port
+    'port': 4000,  # connection port
     'town': 'Town03',  # which town to simulate
     'max_time_episode': 1000,  # maximum timesteps per episode
     'max_waypt': 12,  # maximum number of waypoints
@@ -39,16 +38,20 @@ def main():
   # Set gym-carla environment
   env = gym.make('carla-v0', params=params)
 
-  model = DQN(MlpPolicy, env, verbose=1, tensorboard_log="./tensorboard/")
+  model = DQN("MlpPolicy", env, verbose=1, tensorboard_log="./tensorboard/")
   model.learn(total_timesteps=10000)
 
-  obs = env.reset()
-  i = 0
+  obs, info = env.reset()
+  total_reward = 0
+
   while True:
-    action, _states = model.predict(obs)
-    obs, rewards, dones, info = env.step(action)
-    print(i)
-    i += 1
+    action, _states = model.predict(obs, deterministic=True)
+    obs, rewards, terminated, truncated, info = env.step(action)
+    total_reward += rewards
+    if terminated or truncated:
+      print(f"Episode finished! Total reward: {total_reward}")
+      obs, info = env.reset()
+      total_reward = 0
 
 if __name__ == '__main__':
   main()
