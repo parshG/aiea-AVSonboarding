@@ -1,0 +1,12 @@
+{
+  "DQN": {
+    "best_reward": 811.290322580631,
+    "mean_last_10": 658.4489490504764,
+    "num_episodes": 300
+  },
+  "PPO": {
+    "best_reward": -20.15209125475308,
+    "mean_last_10": -60.848250264500635,
+    "num_episodes": 300
+  }
+}
